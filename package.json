@@ -1,0 +1,13 @@
+{
+  "name": "telegram-webapp-verifier",
+  "version": "1.0.0",
+  "description": "Telegram WebApp Theme Viewer with real verification",
+  "scripts": {
+    "start": "vercel dev"
+  },
+  "author": "YourName",
+  "license": "MIT",
+  "dependencies": {
+    "crypto": "^1.0.1"
+  }
+}
