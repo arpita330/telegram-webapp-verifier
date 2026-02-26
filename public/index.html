@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Telegram WebApp Verifier</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="container">
+  <h1>Telegram WebApp Verifier</h1>
+
+  <form id="webapp-form">
+    <textarea id="jsonInput" placeholder="Paste your Telegram WebApp JSON here"></textarea>
+    <button type="submit">Verify & Render Theme</button>
+  </form>
+
+  <div id="themePreview" style="display:none;">
+    <h2>User Info</h2>
+    <div id="userCard">
+      <img id="userPhoto" src="" alt="User Photo">
+      <div id="userDetails">
+        <p id="userName"></p>
+        <p id="userUsername"></p>
+        <p id="authDate"></p>
+        <p id="verificationStatus"></p>
+      </div>
+    </div>
+
+    <h2>Theme Preview</h2>
+    <div id="themeBox">
+      <p>This box shows background, text, and button colors according to the WebApp theme.</p>
+      <button id="themeButton">Sample Button</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('webapp-form');
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const input = document.getElementById('jsonInput').value;
+
+  try {
+    const data = JSON.parse(input);
+
+    const response = await fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    document.getElementById('verificationStatus').textContent = result.verified 
+      ? 'Verified ✅' 
+      : 'Invalid ❌';
+
+    if (!result.verified) return;
+
+    document.getElementById('userPhoto').src = result.user.photo_url || '';
+    document.getElementById('userName').textContent = (result.user.first_name || '') + ' ' + (result.user.last_name || '');
+    document.getElementById('userUsername').textContent = result.user.username ? '@' + result.user.username : '';
+    document.getElementById('authDate').textContent = 'Auth date: ' + result.auth_date;
+
+    const theme = result.theme || {};
+    document.body.style.backgroundColor = theme.bg_color || '#ffffff';
+    document.body.style.color = theme.text_color || '#000000';
+    document.getElementById('themeBox').style.backgroundColor = theme.section_bg_color || '#f0f0f0';
+    document.getElementById('themeBox').style.color = theme.text_color || '#000000';
+    document.getElementById('themeButton').style.backgroundColor = theme.button_color || '#229af0';
+    document.getElementById('themeButton').style.color = theme.button_text_color || '#ffffff';
+
+    document.getElementById('themePreview').style.display = 'block';
+
+  } catch (err) {
+    alert('Invalid JSON or server error');
+    console.error(err);
+  }
+});
+</script>
+</body>
+  </html>
